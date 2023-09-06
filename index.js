@@ -7,6 +7,7 @@ require('dotenv').config()
 const userDatabase=[]
 const exercisesDatabase={}
 
+//find User function
 function findUser(_id){
   for(const user of userDatabase){
     if(user._id === _id){
@@ -15,6 +16,21 @@ function findUser(_id){
   }
   return null;
 }
+
+//convert date function
+function convertToDateString(date){
+  //converting date to required date String
+  const dateObject = new Date(date);
+
+  const options = {
+    weekday: 'short', // Short weekday name (e.g., "Wed")
+    year: 'numeric',  // Full year (e.g., "2023")
+    month: 'short',  // Short month name (e.g., "Sep")
+    day: '2-digit',  // Zero-padded day of the month (e.g., "06")
+  };
+  return dateObject.toLocaleDateString(undefined, options)
+}
+
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cors())
@@ -53,18 +69,9 @@ app.post('/api/users/:_id/exercises',(req, res)=>{
     const day = today.getDate().toString().padStart(2,'0'); // Get the current day of the month
     date=`${year}-${month}-${day}`;
   }
-  //converting date to required date String
-  const dateObject = new Date(date);
 
-  const options = {
-    weekday: 'short', // Short weekday name (e.g., "Wed")
-    year: 'numeric',  // Full year (e.g., "2023")
-    month: 'short',  // Short month name (e.g., "Sep")
-    day: '2-digit',  // Zero-padded day of the month (e.g., "06")
-  };
-  const formattedDateString = dateObject.toLocaleDateString(undefined, options);
   const exercise={
-    date: formattedDateString,
+    date:date,
     duration: parseInt(duration),
     description: description
   };
@@ -73,7 +80,8 @@ app.post('/api/users/:_id/exercises',(req, res)=>{
   }
   exercisesDatabase[_id].push(exercise);
   const currentUser = findUser(_id);
-  res.json({...currentUser,...exercise})
+  Object.assign(currentUser,exercise)
+  res.json(currentUser)
 })
 
 //Displaying User logs
@@ -96,6 +104,11 @@ app.get('/api/users/:_id/logs',(req, res)=>{
   if (limit) {
     logs = logs.slice(0, limit);
   }
+
+  for (const log  of logs){
+    log.date = convertToDateString(log.date)
+  }
+
   res.json({_id:_id,username:currentUser.username,count:count,log:logs});
 })
 
