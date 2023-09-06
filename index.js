@@ -79,11 +79,14 @@ app.post('/api/users/:_id/exercises',(req, res)=>{
     exercisesDatabase[_id]=[]
   }
   exercisesDatabase[_id].push(exercise);
-  const currentUser ={ ...findUser(_id)};
-  currentUser['date'] = convertToDateString(date);
-  currentUser['duration'] = duration;
-  currentUser['description'] = description
-  res.json(currentUser)
+  const currentUser = findUser(_id);
+  res.json({
+    _id:currentUser._id,
+    username:currentUser.username,
+    date:new Date(exercise.date).toDateString(),
+    duration:exercise.duration,
+    description:exercise.description
+  })
 })
 
 //Displaying User logs
