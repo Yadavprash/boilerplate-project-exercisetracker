@@ -28,7 +28,7 @@ function convertToDateString(date){
     month: 'short',  // Short month name (e.g., "Sep")
     day: '2-digit',  // Zero-padded day of the month (e.g., "06")
   };
-  return dateObject.toLocaleDateString(undefined, options)
+  return dateObject.toLocaleDateString(undefined, options).replace(/,/g, '');
 }
 
 
@@ -49,7 +49,7 @@ app.post('/api/users',(req, res)=>{
     username:username
   }
   userDatabase.push(user)
-  res.json({username:username,_id:id});
+  res.json(user);
 })
 
 //Displaying User Info
@@ -81,6 +81,7 @@ app.post('/api/users/:_id/exercises',(req, res)=>{
   exercisesDatabase[_id].push(exercise);
   const currentUser = findUser(_id);
   Object.assign(currentUser,exercise)
+  // console.log(exercisesDatabase)
   res.json(currentUser)
 })
 
@@ -88,7 +89,7 @@ app.post('/api/users/:_id/exercises',(req, res)=>{
 app.get('/api/users/:_id/logs',(req, res)=>{
   const { _id } = req.params;
   const currentUser = findUser(_id);
-  let logs = exercisesDatabase[_id];
+  let logs = exercisesDatabase[_id].map(obj=>({...obj}));
   const fromDate = req.query.from;
   const toDate = req.query.to;
   const limit = parseInt(req.query.limit);
@@ -108,7 +109,7 @@ app.get('/api/users/:_id/logs',(req, res)=>{
   for (const log  of logs){
     log.date = convertToDateString(log.date)
   }
-
+  // console.log(exercisesDatabase)
   res.json({_id:_id,username:currentUser.username,count:count,log:logs});
 })
 
