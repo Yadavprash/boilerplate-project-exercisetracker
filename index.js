@@ -80,9 +80,7 @@ app.post('/api/users/:_id/exercises',(req, res)=>{
   }
   exercisesDatabase[_id].push(exercise);
   const currentUser = findUser(_id);
-  Object.assign(currentUser,exercise)
-  // console.log(exercisesDatabase)
-  res.json(currentUser)
+  res.json({...currentUser,date:convertToDateString(date),duration:duration,description:description})
 })
 
 //Displaying User logs
@@ -109,7 +107,6 @@ app.get('/api/users/:_id/logs',(req, res)=>{
   for (const log  of logs){
     log.date = convertToDateString(log.date)
   }
-  // console.log(exercisesDatabase)
   res.json({_id:_id,username:currentUser.username,count:count,log:logs});
 })
 
